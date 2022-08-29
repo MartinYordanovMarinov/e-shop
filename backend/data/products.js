@@ -1,0 +1,73 @@
+const products = [
+  {
+    name: 'Циркуляр',
+    image: '/images/circulqr.jpeg',
+    description: 'Уникален циркуляр.Реже всичко.Просто няма грешка!!!',
+    brand: 'Apple',
+    category: 'Electronics',
+    price: 89.99,
+    countInStock: 10,
+    rating: 4.5,
+    numReviews: 12,
+  },
+  {
+    name: 'Гайка',
+    image: '/images/gajka.jpeg',
+    description:
+      'Уникална гайка.Изработена от платина.Всеки, който я ползва , е супер доволен от нея. ',
+    brand: 'Apple',
+    category: 'Electronics',
+    price: 599.99,
+    countInStock: 7,
+    rating: 4.0,
+    numReviews: 8,
+  },
+  {
+    name: 'Чук',
+    image: '/images/hammer.jpeg',
+    description:
+      'Този чук не е случаен.Това е работния чук на Тор.Веднъж активиран,призовава бригада от цигани, готови да умрат на обекта',
+    brand: 'Cannon',
+    category: 'Electronics',
+    price: 929.99,
+    countInStock: 5,
+    rating: 3,
+    numReviews: 12,
+  },
+  {
+    name: 'Клещи',
+    image: '/images/kle.jpg',
+    description: 'Тези клещи са просто могъщи.',
+    brand: 'Sony',
+    category: 'Electronics',
+    price: 399.99,
+    countInStock: 11,
+    rating: 5,
+    numReviews: 12,
+  },
+  {
+    name: 'Косачка за трева',
+    image: '/images/kos.jpeg',
+    description:
+      'И Илън Мъск не може да измисли такава косачка.Захранва се от слънцето, абе няма грешка.',
+    brand: 'Logitech',
+    category: 'Electronics',
+    price: 49.99,
+    countInStock: 7,
+    rating: 3.5,
+    numReviews: 10,
+  },
+  {
+    name: 'Отвертка',
+    image: '/images/screw1.jpg',
+    description: 'От скъпото!!!',
+    brand: 'Amazon',
+    category: 'Electronics',
+    price: 29.99,
+    countInStock: 0,
+    rating: 4,
+    numReviews: 12,
+  },
+];
+
+export default products;
