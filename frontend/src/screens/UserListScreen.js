@@ -6,13 +6,22 @@ import Message from '../components/Message';
 import Loader from '../components/Loader';
 import { listUsers,deleteUser } from '../actions/userActions';
 import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { SearchOrdersBox } from '../components/SearchOrdersBox';
+import { SearchUsersBox } from '../components/SearchUsersBox';
+import { Link } from 'react-router-dom';
+import AdminPaginateUser from '../components/AdminPaginateUser';
 
 const UserListScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const params = useParams();
+  const pageNumber = params.pageNumber || 1;
+
+  const email = params.email;
 
   const userList = useSelector((state) => state.userList);
-  const { loading, error, users } = userList;
+  const { loading, error, users,page,pages } = userList;
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -22,11 +31,11 @@ const UserListScreen = () => {
 
   useEffect(() => {
     if (userInfo && userInfo.isAdmin) {
-      dispatch(listUsers());
+      dispatch(listUsers(email,pageNumber));
     } else {
       navigate('/login');
     }
-  }, [dispatch, navigate,successDelete,userInfo]);
+  }, [dispatch, navigate,successDelete,userInfo,email,pageNumber]);
 
   const deleteHandler = (id) => {
     if (window.confirm('Are you sure')) {
@@ -37,6 +46,14 @@ const UserListScreen = () => {
   return (
     <>
       <h1>Потребители</h1>
+      {!email ? (
+        <div></div>
+      ) : (
+        <Link to="/admin/userlist" className="btn btn-light">
+          Назад
+        </Link>
+      )}
+      <SearchUsersBox />
       {loading ? (
         <Loader />
       ) : error ? (
@@ -86,6 +103,7 @@ const UserListScreen = () => {
           </tbody>
         </Table>
       )}
+      <AdminPaginateUser pages={pages} page={page} />
     </>
   );
 };

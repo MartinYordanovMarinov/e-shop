@@ -1,3 +1,6 @@
-.navbar{
-    background: green;
+.navbarr{
+    background: #009970;
+}
+.navbar-inner {
+    height: 30px;
 }

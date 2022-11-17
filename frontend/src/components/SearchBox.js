@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Form, Button, InputGroup } from 'react-bootstrap';
+import { Form, Button, InputGroup, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import './SearchBox.scss';
 
 const SearchBox = () => {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
 
   const submitHandler = (e) => {
@@ -11,29 +12,34 @@ const SearchBox = () => {
     if (keyword.trim()) {
       navigate(`/search/${keyword}`);
     } else {
-      navigate('/');
+      navigate('/store');
     }
   };
 
   return (
-    <Form onSubmit={submitHandler} inline>
-      <Form.Control
-        type="text"
-        name="q"
-        onChange={(e) => setKeyword(e.target.value)}
-        placeholder="Search Products..."
-        className=" mr-auto"
-      ></Form.Control>
-     
-        <Button
-          type="submit"
-          variant="outline-success"
-          className="p-2 m-3 ml-auto"
-        >
-          Търси
-        </Button>
-     
-    </Form>
+    <div>
+      <Form onSubmit={submitHandler} inline="true">
+        <Col>
+          <div className="form__group field">
+            <input
+              type="text" 
+              className="form__field"
+              placeholder="Search"
+              onChange={(e) => setKeyword(e.target.value)}
+              required
+            />
+            <label for="name" className="form__label">
+              <i class="bi bi-search"></i>
+            </label>
+          </div>
+        </Col>
+        <Col col-12 col-sm-6>
+          <Button type="submit" variant="outline-success" className="p-2">
+            Търси
+          </Button>
+        </Col>
+      </Form>
+    </div>
   );
 };
 

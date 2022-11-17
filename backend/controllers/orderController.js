@@ -58,20 +58,39 @@ const getOrderById = asyncHandler(async (req, res) => {
 // @route   GET /api/orders/:id/deliver
 // @access  Private/Admin
 const updateOrderToDelivered = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.id)
+  const order = await Order.findById(req.params.id);
 
   if (order) {
-    order.isDelivered = true
-    order.deliveredAt = Date.now()
+    order.isDelivered = true;
+    order.deliveredAt = Date.now();
 
-    const updatedOrder = await order.save()
+    const updatedOrder = await order.save();
 
-    res.json(updatedOrder)
+    res.json(updatedOrder);
   } else {
-    res.status(404)
-    throw new Error('Order not found')
+    res.status(404);
+    throw new Error('Order not found');
   }
-})
+});
+
+// @desc    Update order to paid
+// @route   GET /api/orders/:id/pay
+// @access  Private/Admin
+
+const updateOrderToPaid = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    order.isPaid = true;
+    order.paidAt = Date.now();
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } else {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+});
 
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
@@ -85,8 +104,36 @@ const getMyOrders = asyncHandler(async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find({}).populate('user', 'id name')
-  res.json(orders)
-})
+  const pageSize = 8;
+  const page = Number(req.query.pageNumber) || 1;
 
-export { addOrderItems, getOrderById, getMyOrders,updateOrderToDelivered,getOrders };
+  const orderId = req.query.orderId
+    ? {
+        _id: req.query.orderId,
+      }
+    : {};
+
+  const sort = { isDelivered: false, isPaid: false };
+
+  const count = await Order.countDocuments({ ...orderId });
+  const pages = Math.ceil(count / pageSize);
+  const orders = await Order.find({ ...orderId })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1))
+    .populate('user', 'id name');
+  const allOrders = await Order.find({...sort})
+    .limit(pageSize)
+    .skip(pageSize * (page - 1))
+    .populate('user', 'id name');
+
+  res.json({ orders, page, pages, allOrders });
+});
+
+export {
+  addOrderItems,
+  getOrderById,
+  getMyOrders,
+  updateOrderToDelivered,
+  getOrders,
+  updateOrderToPaid,
+};

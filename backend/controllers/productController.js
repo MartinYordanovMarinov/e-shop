@@ -5,8 +5,17 @@ import Product from '../models/productModel.js';
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  const pageSize = 10;
+  const pageSize = 8;
   const page = Number(req.query.pageNumber) || 1;
+ const keywordd = req.query.keywordd
+   ? {
+       name: {
+         $regex: req.query.keyword,
+         $options: 'i',
+       },
+     }
+   : {};
+
   const keyword = req.query.keyword
     ? {
         name: {
@@ -15,13 +24,74 @@ const getProducts = asyncHandler(async (req, res) => {
         },
       }
     : {};
+  const category = req.query.category
+    ? {
+        category: {
+          $regex: req.query.category,
+          $options: 'i',
+        },
+      }
+    : {};
   const count = await Product.countDocuments({ ...keyword });
+  const countName = await Product.countDocuments({ ...keyword });
+  const countOfFilteredProducts = await Product.countDocuments({ ...category });
+  const productsToBeFiltered = await Product.find({});
 
- const products = await Product.find({ ...keyword })
-   .limit(pageSize)
-   .skip(pageSize * (page - 1));
+  const filteredProducts = await Product.find({ ...category })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
 
-   res.json({ products, page, pages: Math.ceil(count / pageSize) });
+  const products = await Product.find({ ...keyword })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+  const productsName = await Product.find({ ...keyword })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+
+  const ascProducts = await Product.find({ ...category })
+    .sort({ price: 1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+
+  const descProducts = await Product.find({ ...category })
+    .sort({ price: -1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+
+  const ratingProducts = await Product.find({ ...category })
+    .sort({ rating: -1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+
+  const productsAsc = await Product.find({ ...keyword })
+    .sort({ price: 1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+  const productsDesc = await Product.find({ ...keyword })
+    .sort({ price: -1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+  const productsRating = await Product.find({ ...keyword })
+    .sort({ rating: -1 })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
+
+  res.json({
+    products,
+    page,
+    pages: Math.ceil(countOfFilteredProducts / pageSize),
+    pagesSort: Math.ceil(count / pageSize),
+    productsToBeFiltered,
+    filteredProducts,
+    ascProducts,
+    descProducts,
+    ratingProducts,
+    productsAsc,
+    productsDesc,
+    productsRating,
+    countName,
+    productsName,
+  });
 });
 
 // @desc    Fetch single product
@@ -99,6 +169,25 @@ const updateProduct = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update a product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
+const updateProductAfterPayment = asyncHandler(async (req, res) => {
+  const { _id, countInStock } = req.body;
+
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    product.countInStock = countInStock;
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
+  } else {
+    res.status(404);
+    throw new Error('Product not found'); 
+  }
+});
+
 // @desc    Create new review
 // @route   POST /api/products/:id/reviews
 // @access  Private
@@ -144,11 +233,10 @@ const createProductReview = asyncHandler(async (req, res) => {
 // @route   GET /api/products/top
 // @access  Public
 const getTopProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({}).sort({ rating: -1 }).limit(3)
+  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
 
-  res.json(products)
-})
-
+  res.json(products);
+});
 
 export {
   getProducts,
@@ -157,5 +245,6 @@ export {
   updateProduct,
   createProduct,
   createProductReview,
-  getTopProducts
+  getTopProducts,
+  updateProductAfterPayment,
 };

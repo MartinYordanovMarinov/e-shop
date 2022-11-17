@@ -22,7 +22,7 @@ const CartScreen = () => {
   const productId = params.id;
   const location = useLocation();
   const [searchParams] = useSearchParams('');
-const navigate = useNavigate()
+  const navigate = useNavigate();
   const qty = searchParams.get('qty') ? Number(searchParams.get('qty')) : 1;
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
@@ -35,11 +35,12 @@ const navigate = useNavigate()
   }, [dispatch, productId, qty]);
 
   const removeFromCartHandler = (id) => {
-    dispatch(removeFromCart(id))
+    dispatch(removeFromCart(id));
   };
 
   const checkoutHandler = () => {
-    navigate('/login?redirect=shipping')
+    // navigate('/login?redirect=shipping')
+    navigate('/shipping');
   };
 
   return (
@@ -48,7 +49,7 @@ const navigate = useNavigate()
         <h1>Количка</h1>
         {cartItems.length === 0 ? (
           <Message>
-            Koличката е празна <Link to="/">Назад</Link>
+            Koличката е празна <Link to="/store">Назад</Link>
           </Message>
         ) : (
           <ListGroup variant="flush">

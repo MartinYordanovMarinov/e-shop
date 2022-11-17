@@ -8,15 +8,17 @@ import { listProducts,deleteProduct,createProduct } from '../actions/productActi
 import { useParams, useNavigate } from 'react-router-dom';
 import { PRODUCT_CREATE_RESET } from '../constants/productConstants';
 import Paginate from '../components/Paginate';
+import { SearchAdminProductsBox } from '../components/SearchAdminProductsBox';
 
 const ProductListScreen = () => {
     const params = useParams()
     const navigate = useNavigate()
       const pageNumber = params.pageNumber || 1;
   const dispatch = useDispatch();
+  const keyword = params.keyword;
 
   const productList = useSelector((state) => state.productList);
- const { loading, error, products, page, pages } = productList;
+ const { loading, error, products, page, pages,productsName } = productList;
 
    const productDelete = useSelector((state) => state.productDelete);
    const {
@@ -44,7 +46,7 @@ const ProductListScreen = () => {
     if (successCreate) {
       navigate(`/admin/product/${createdProduct._id}/edit`);
     } else {
-      dispatch(listProducts('',pageNumber));
+      dispatch(listProducts(keyword,pageNumber));
     }
   }, [
     dispatch,
@@ -53,7 +55,8 @@ const ProductListScreen = () => {
     successDelete,
     successCreate,
     createdProduct,
-    pageNumber
+    pageNumber,
+    keyword
   ]);
 
   const deleteHandler = (id) => {
@@ -71,6 +74,7 @@ const ProductListScreen = () => {
       <Row className="align-items-center">
         <Col>
           <h1>Продукти</h1>
+          <SearchAdminProductsBox/>
         </Col>
         <Col className="text-right">
           <Button className="my-3" onClick={createProductHandler}>

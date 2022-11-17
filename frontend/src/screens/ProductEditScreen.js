@@ -60,7 +60,7 @@ const ProductEditScreen = () => {
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append('image', file);
-    setUploading(true);
+    setUploading(true); 
 
     try {
       const config = {

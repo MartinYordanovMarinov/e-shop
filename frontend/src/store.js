@@ -9,6 +9,7 @@ import {
   productUpdateReducer,
   productReviewCreateReducer,
   productTopRatedReducer,
+  productUpdateReducerAfterPayment,
 } from './reducers/productReducers';
 import { cartReducer } from './reducers/cartReducers';
 import {
@@ -25,8 +26,10 @@ import {
   orderDetailsReducer,
   orderListMyReducer,
   orderDeliverReducer,
+  orderPayReducer,
   orderListReducer,
 } from './reducers/orderReducers';
+import { PendingOrdersReducer } from './reducers/pendingOrdersReducers';
 
 const reducer = combineReducers({
   productList: productListReducer,
@@ -34,9 +37,11 @@ const reducer = combineReducers({
   productDelete: productDeleteReducer,
   productCreate: productCreateReducer,
   productUpdate: productUpdateReducer,
+  productUpdateAfterPayment: productUpdateReducerAfterPayment,
   productReviewCreate: productReviewCreateReducer,
   productTopRated: productTopRatedReducer,
   cart: cartReducer,
+  pendingOrders: PendingOrdersReducer,
   userLogin: userLoginReducer,
   userRegister: userRegisterReducer,
   userDetails: userDetailsReducer,
@@ -47,12 +52,16 @@ const reducer = combineReducers({
   orderCreate: orderCreateReducer,
   orderDetails: orderDetailsReducer,
   orderDeliver: orderDeliverReducer,
+  orderPay: orderPayReducer,
   orderListMy: orderListMyReducer,
   orderList: orderListReducer,
 });
 
 const cartItemsFromStorage = localStorage.getItem('cartItems')
   ? JSON.parse(localStorage.getItem('cartItems'))
+  : [];
+const pendingOrdersFromStorage = localStorage.getItem('pendingOrders')
+  ? JSON.parse(localStorage.getItem('pendingOrders'))
   : [];
 
 const userInfoFromStorage = localStorage.getItem('userInfo')
@@ -67,6 +76,9 @@ const initialState = {
   cart: {
     cartItems: cartItemsFromStorage,
     shippingAddress: shippingAddressFromStorage,
+  },
+  pendingOrders: {
+    pendingOrders: pendingOrdersFromStorage,
   },
   userLogin: { userInfo: userInfoFromStorage },
 };

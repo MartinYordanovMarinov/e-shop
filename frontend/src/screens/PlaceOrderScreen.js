@@ -1,24 +1,66 @@
-import React, {  useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 import { Link } from 'react-router-dom';
-import { Button, Row, Col, ListGroup, Image, Card, ListGroupItem } from 'react-bootstrap';
+import {
+  Button,
+  Row,
+  Col,
+  ListGroup,
+  Image,
+  Card,
+  ListGroupItem,
+} from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { createOrder } from '../actions/orderActions';
 import { useNavigate } from 'react-router-dom';
 import { USER_DETAILS_RESET } from '../constants/userConstants';
-import { ORDER_CREATE_RESET}  from '../constants/orderConstants'
+import { ORDER_CREATE_RESET } from '../constants/orderConstants';
+import {
+  updateProduct,
+  updateProductAfterPayment,
+} from '../actions/productActions';
+import axios from 'axios';
+import { PRODUCT_UPDATE_SUCCESS } from '../constants/productConstants';
+import { addToPendingOrders } from '../actions/pendingOrdersActions';
 
 const PlaceOrderScreen = () => {
+  
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [countInStock, setCountInStock] = useState(1);
+   const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+  const orderCreate = useSelector((state) => state.orderCreate);
+  const { order, success, error } = orderCreate;
   if (!cart.shippingAddress.address) {
     navigate('/shipping');
   } else if (!cart.paymentMethod) {
     navigate('/payment');
   }
 
+  var templateParams = {
+    to_name: 'Momoka',
+    order_id: 'idddddddd',
+    message: ` Здравей, ${userInfo.firstname},
+      Вашата поръчка #
+    `,
+  };
+
+  const sendEmail = () => {
+    emailjs
+      .send('contact_service', 'order', templateParams, 'scdhGRP8ZHHZ7VsPB')
+      .then(
+        function (response) {
+          console.log('SUCCESS!', response.status, response.text);
+        },
+        function (error) {
+          console.log('FAILED...', error);
+        }
+      );
+  };
   //   Calculate prices
   const addDecimals = (num) => {
     return (Math.round(num * 100) / 100).toFixed(2);
@@ -35,17 +77,17 @@ const PlaceOrderScreen = () => {
     Number(cart.taxPrice)
   ).toFixed(2);
 
-  const orderCreate = useSelector((state) => state.orderCreate);
-  const { order, success, error } = orderCreate;
+  
 
   useEffect(() => {
     if (success) {
       navigate(`/order/${order._id}`);
+       //dispatch(addToPendingOrders(order._id));
+      // console.log(order._id)
       dispatch({ type: USER_DETAILS_RESET });
-        dispatch({ type: ORDER_CREATE_RESET });
+      dispatch({ type: ORDER_CREATE_RESET });
     }
- 
-  },[navigate,success,order]);
+  }, [navigate, success, order,dispatch]);
 
   const placeOrderHandler = () => {
     dispatch(
@@ -59,7 +101,40 @@ const PlaceOrderScreen = () => {
         totalPrice: cart.totalPrice,
       })
     );
+
   };
+  const productUpdate = useSelector((state) => state.productUpdate);
+  const {
+    loading: loadingUpdate,
+    error: errorUpdate,
+    success: successUpdate,
+  } = productUpdate;
+
+ 
+
+  const reduceCountInStockOfProduct = async (product) => {
+    // console.log(product.countInStock - product.qty + '  ');
+    // console.log(product);
+    //setCountInStock(product.countInStock - product.qty);
+
+    dispatch(
+      updateProductAfterPayment({
+        _id: product.product,
+        countInStock: product.countInStock - product.qty,
+      })
+    );
+  };
+
+  const reduceCountInStockHandler = () => {
+    cart.cartItems.map((x) => reduceCountInStockOfProduct(x));
+  };
+
+  const addToPendingOrders = () => {
+   
+  };
+
+
+  
 
   return (
     <>
@@ -148,14 +223,20 @@ const PlaceOrderScreen = () => {
               </ListGroup.Item>
 
               <ListGroupItem>
-                {error && <Message variant='danger'>{error}</Message>}
+                {error && <Message variant="danger">{error}</Message>}
               </ListGroupItem>
+
               <ListGroup.Item>
                 <Button
-                  type="button"
+                  type="submit"
                   className="btn-block"
                   disabled={cart.cartItems === 0}
-                  onClick={placeOrderHandler}
+                  onClick={() => {
+                    reduceCountInStockHandler();
+                   //  sendEmail();
+                    placeOrderHandler();
+                    //  addToPendingOrders();
+                  }}
                 >
                   Завърши поръчка
                 </Button>

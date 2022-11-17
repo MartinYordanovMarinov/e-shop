@@ -21,17 +21,20 @@ import {
   PRODUCT_TOP_REQUEST,
   PRODUCT_TOP_SUCCESS,
   PRODUCT_TOP_FAIL,
+  PRODUCT_UPDATE_AFTER_PAYMENT_REQUEST,
+  PRODUCT_UPDATE_AFTER_PAYMENT_SUCCESS,
+  PRODUCT_UPDATE_AFTER_PAYMENT_FAIL,
 } from '../constants/productConstants';
 import { logout } from './userActions';
 
 export const listProducts =
-  (keyword = '', pageNumber = '') =>
+  (keyword = '', pageNumber = '', category = '', sort = '',) =>
   async (dispatch) => {
     try {
       dispatch({ type: PRODUCT_LIST_REQUEST });
 
       const { data } = await axios.get(
-        `/api/products?keyword=${keyword}&pageNumber=${pageNumber}`
+        `/api/products?category=${category}&sort=${sort}&keyword=${keyword}&pageNumber=${pageNumber}`
       );
 
       dispatch({
@@ -92,13 +95,13 @@ export const deleteProduct = (id) => async (dispatch, getState) => {
       type: PRODUCT_DELETE_SUCCESS,
     });
   } catch (error) {
-     const message =
-       error.response && error.response.data.message
-         ? error.response.data.message
-         : error.message;
-     if (message === 'Not authorized, token failed') {
-       dispatch(logout());
-     }
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: PRODUCT_DELETE_FAIL,
       payload: message,
@@ -129,13 +132,13 @@ export const createProduct = () => async (dispatch, getState) => {
       payload: data,
     });
   } catch (error) {
-      const message =
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message;
-      if (message === 'Not authorized, token failed') {
-        dispatch(logout());
-      }
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
     dispatch({
       type: PRODUCT_CREATE_FAIL,
       payload: message,
@@ -170,8 +173,37 @@ export const updateProduct = (product) => async (dispatch, getState) => {
       type: PRODUCT_UPDATE_SUCCESS,
       payload: data,
     });
-     dispatch({ type: PRODUCT_DETAILS_SUCCESS, payload: data });
+    dispatch({ type: PRODUCT_DETAILS_SUCCESS, payload: data });
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === 'Not authorized, token failed') {
+      dispatch(logout());
+    }
+    dispatch({
+      type: PRODUCT_UPDATE_FAIL,
+      payload: message,
+    });
+  }
+};
+
+export const updateProductAfterPayment =
+  (product) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: PRODUCT_UPDATE_AFTER_PAYMENT_REQUEST,
+      });
+
+      const { data } = await axios.put(`/api/products/after_payment/${product._id}`, product);
+
+      dispatch({
+        type: PRODUCT_UPDATE_AFTER_PAYMENT_SUCCESS,
+        payload: data,
+      });
+      dispatch({ type: PRODUCT_DETAILS_SUCCESS, payload: data });
+    } catch (error) {
       const message =
         error.response && error.response.data.message
           ? error.response.data.message
@@ -179,12 +211,12 @@ export const updateProduct = (product) => async (dispatch, getState) => {
       if (message === 'Not authorized, token failed') {
         dispatch(logout());
       }
-    dispatch({
-      type: PRODUCT_UPDATE_FAIL,
-      payload: message,
-    });
-  }
-};
+      dispatch({
+        type: PRODUCT_UPDATE_AFTER_PAYMENT_FAIL,
+        payload: message,
+      });
+    }
+  };
 
 export const createProductReview =
   (productId, review) => async (dispatch, getState) => {
@@ -210,13 +242,13 @@ export const createProductReview =
         type: PRODUCT_CREATE_REVIEW_SUCCESS,
       });
     } catch (error) {
-         const message =
-           error.response && error.response.data.message
-             ? error.response.data.message
-             : error.message;
-         if (message === 'Not authorized, token failed') {
-           dispatch(logout());
-         }
+      const message =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
+      if (message === 'Not authorized, token failed') {
+        dispatch(logout());
+      }
       dispatch({
         type: PRODUCT_CREATE_REVIEW_FAIL,
         payload: message,
@@ -224,23 +256,23 @@ export const createProductReview =
     }
   };
 
-  export const listTopProducts = () => async (dispatch) => {
-    try {
-      dispatch({ type: PRODUCT_TOP_REQUEST });
+export const listTopProducts = () => async (dispatch) => {
+  try {
+    dispatch({ type: PRODUCT_TOP_REQUEST });
 
-      const { data } = await axios.get(`/api/products/top`);
+    const { data } = await axios.get(`/api/products/top`);
 
-      dispatch({
-        type: PRODUCT_TOP_SUCCESS,
-        payload: data,
-      });
-    } catch (error) {
-      dispatch({
-        type: PRODUCT_TOP_FAIL,
-        payload:
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.message,
-      });
-    }
-  };
+    dispatch({
+      type: PRODUCT_TOP_SUCCESS,
+      payload: data,
+    });
+  } catch (error) {
+    dispatch({
+      type: PRODUCT_TOP_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};

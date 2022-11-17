@@ -6,8 +6,9 @@ import {
   createProduct,
   updateProduct,
   createProductReview,
-  getTopProducts
-} from '../controllers/productController.js';
+  getTopProducts,
+  updateProductAfterPayment,
+} from '../controllers/productController.js'; 
 import { protect, admin } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
@@ -18,6 +19,8 @@ router
   .route('/:id')
   .get(getProductById)
   .delete(protect, admin, deleteProduct)
-  .put(protect, admin, updateProduct);
+  .put(protect, admin, updateProduct)
+  
+  router.route('/after_payment/:id').put( updateProductAfterPayment);
 
 export default router;

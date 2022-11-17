@@ -27,6 +27,13 @@
 .App-link {
   color: #61dafb;
 }
+.fill-window {
+  height: 100%;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+}
 
 @keyframes App-logo-spin {
   from {

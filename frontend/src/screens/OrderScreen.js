@@ -4,9 +4,17 @@ import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { getOrderDetails, deliverOrder } from '../actions/orderActions';
+import {
+  getOrderDetails,
+  deliverOrder,
+  payOrder,
+} from '../actions/orderActions';
 import { useParams } from 'react-router-dom';
-import { ORDER_DELIVER_RESET } from '../constants/orderConstants';
+import {
+  ORDER_DELIVER_RESET,
+  ORDER_PAY_RESET,
+} from '../constants/orderConstants';
+import emailjs from '@emailjs/browser';
 
 const OrderScreen = () => {
   const params = useParams();
@@ -18,6 +26,9 @@ const OrderScreen = () => {
   const { order, loading, error } = orderDetails;
   const orderDeliver = useSelector((state) => state.orderDeliver);
   const { loading: loadingDeliver, success: successDeliver } = orderDeliver;
+
+  const orderPay = useSelector((state) => state.orderPay);
+  const { loading: loadingPay, success: successPay } = orderPay;
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -33,16 +44,51 @@ const OrderScreen = () => {
     );
   }
 
+  const printProducts = () => {
+    let stringOutput = '\n';
+    order.orderItems.map((x) => stringOutput + x.name + '\n');
+
+    return stringOutput;
+  };
+
+  const generateOrderSummeay = () => {
+    let stringOutput = '';
+    order.orderItems.map((x) => stringOutput + ``);
+
+    return ('<table> <tr> <th> Company</th> <th>Contact</th> <th>Country</th> </tr><tr><td>Alfreds Futterkiste</td><td>Maria Anders</td><td>Germany</td></tr><tr> <td>Centro comercial Moctezuma</td><td>Francisco Chang</td><td>Mexico</td></tr></table>')
+  };
+
   useEffect(() => {
-    if (!order || successDeliver || order._id !== orderId) {
+    if (!order || successDeliver || order._id !== orderId || successPay) {
       dispatch(getOrderDetails(orderId));
       dispatch({ type: ORDER_DELIVER_RESET });
+      dispatch({ type: ORDER_PAY_RESET });
+
+      var templateParams = {
+        to_name: 'Десооооооооооо брат',
+        order_id: `${3}`,
+        message: 'adaw',
+      };
+
+      emailjs
+        .send('contact_service', 'order', templateParams, 'scdhGRP8ZHHZ7VsPB')
+        .then(
+          function (response) {
+            console.log('SUCCESS!', response.status, response.text);
+          },
+          function (error) {
+            console.log('FAILED...', error);
+          }
+        );
     }
     // eslint-disable-next-line
-  }, [order, orderId, successDeliver]);
+  }, [order, orderId, successDeliver, successPay]);
 
   const deliverHandler = () => {
     dispatch(deliverOrder(order));
+  };
+  const payHandler = () => {
+    dispatch(payOrder(order));
   };
 
   return loading ? (
@@ -156,7 +202,7 @@ const OrderScreen = () => {
                 </Row>
               </ListGroup.Item>
               {loadingDeliver && <Loader />}
-              {userInfo.isAdmin  && !order.isDelivered && (
+              {userInfo.isAdmin && (!order.isDelivered || !order.isPaid) && (
                 <ListGroup.Item>
                   <Button
                     type="button"
@@ -164,6 +210,13 @@ const OrderScreen = () => {
                     onClick={deliverHandler}
                   >
                     Отбележи пратката като доставена
+                  </Button>
+                  <Button
+                    type="button"
+                    className="btn btn-block"
+                    onClick={payHandler}
+                  >
+                    Отбележи пратката като платена
                   </Button>
                 </ListGroup.Item>
               )}

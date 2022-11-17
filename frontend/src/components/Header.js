@@ -6,14 +6,21 @@ import { Route, Routes } from 'react-router-dom';
 import SearchBox from './SearchBox';
 import { useNavigate } from 'react-router-dom';
 
-import './Header.css';
 import { logout } from '../actions/userActions';
+import './Header.css';
+import '../screens/ProductCounter.scss';
+import { OrdersCounter } from './OrdersCounter';
 
-const Header = () => {
+
+const Header = (props ) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
+  const cart = useSelector((state) => state.cart);
+  const { cartItems } = cart;
+  const orderList = useSelector((state) => state.orderList);
+ // const { loading, error, orders, page, pages, allOrders } = orderList;
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -21,23 +28,24 @@ const Header = () => {
 
   return (
     <header>
-      <Navbar className="navbar" variant="dark" expand="lg" collapseOnSelect>
+      <Navbar
+        className="navbarr navbar-inner"
+        variant="dark"
+        expand="sm"
+        collapseOnSelect
+      >
         <Container>
           <LinkContainer to="/">
             <Navbar.Brand>ПЛАМ Магазин</Navbar.Brand>
           </LinkContainer>
-
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <SearchBox />
-            </Nav>
-
             <Nav className="ml-auto">
               <LinkContainer to="/cart">
                 <Nav.Link>
-                  <i className="fas fa-shopping-cart"></i> Кошница
+                  <i className="fas fa-shopping-cart"></i>
+                  <div className="cart-no">{cartItems.length}</div>
                 </Nav.Link>
               </LinkContainer>
               {userInfo ? (
@@ -68,6 +76,15 @@ const Header = () => {
                     <NavDropdown.Item>Поръчки</NavDropdown.Item>
                   </LinkContainer>
                 </NavDropdown>
+              )}
+
+              {userInfo && userInfo.isAdmin && (
+                <LinkContainer to="/pendingorders">
+                  <Nav.Link>
+                    <i className="bi bi-journal-check"></i>
+                   <OrdersCounter count={props.count}/>
+                  </Nav.Link>
+                </LinkContainer>
               )}
             </Nav>
           </Navbar.Collapse>
